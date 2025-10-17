@@ -188,10 +188,8 @@ Namespace Poker.Classes
 
         ''  Check for Four of a Kind
         Private Function IsFourOfAKind(hand As List(Of Card)) As Boolean
-            Dim rankGroups = From card In hand
-                             Where card.Value > 10
-                             Group card By Rank = card.Value Into RankGroup = Group
-            Return rankGroups.Count = 4
+            Dim rankGroups = hand.GroupBy(Function(c) c.Value)
+            Return rankGroups.Any(Function(group) group.Count() = 4)
         End Function
 
         ''  Check for Full House

@@ -11,11 +11,11 @@ Public Class _Default
         Dim deck As DeckofCards = New DeckofCards()
         deck.Shuffle()
 
-        '' Deal two hands of 5 cards each   
+        ' Deal two hands of 5 cards each   
         Dim hand1 As List(Of Card) = deck.DealHand(5)
         Dim hand2 As List(Of Card) = deck.DealHand(5)
 
-        '' Display the hands
+        ' Display the hands
         PokerHand1.DataSource = hand1
         PokerHand1.DataBind()
         PokerHand2.DataSource = hand2
@@ -28,16 +28,17 @@ Public Class _Default
     ''  Evaluate the two hands and determine the winner
     Private Sub EvaluateWinner(playerhand1 As List(Of Card), playerhand2 As List(Of Card))
 
-        '' Evaluate the hands
+        ' Evaluate the hands
         Dim CompareResult As Integer
         Dim HandEvaluation As HandRanking = New HandRanking()
 
+        ' Get the hand ranks and display results
         Dim Hand1Rank As HandRanking.HandRank = HandEvaluation.CalculateHandRank(playerhand1)
-        Hand1Result.Text = Hand1Rank.ToString()
+        Hand1Result.Text = GetHandResult(Hand1Rank)
         Dim Hand2Rank As HandRanking.HandRank = HandEvaluation.CalculateHandRank(playerhand2)
-        Hand2Result.Text = Hand2Rank.ToString()
+        Hand2Result.Text = GetHandResult(Hand2Rank)
 
-
+        ' Compare the hands
         If Hand1Rank > Hand2Rank Then
             CompareResult = 1
         ElseIf Hand2Rank > Hand1Rank Then
@@ -69,5 +70,33 @@ Public Class _Default
 
     End Sub
 
+    ''  Get the string representation of a hand rank
+    Private Function GetHandResult(handrank As HandRanking.HandRank)
+        Dim result As String = String.Empty
 
+        Select Case handrank
+            Case HandRanking.HandRank.HighCard
+                result = "High Card"
+            Case HandRanking.HandRank.OnePair
+                result = "One Pair"
+            Case HandRanking.HandRank.TwoPair
+                result = "Two Pair"
+            Case HandRanking.HandRank.ThreeOfAKind
+                result = "Three of a Kind"
+            Case HandRanking.HandRank.Straight
+                result = "Straight"
+            Case HandRanking.HandRank.Flush
+                result = "Flush"
+            Case HandRanking.HandRank.FullHouse
+                result = "Full House"
+            Case HandRanking.HandRank.FourOfAKind
+                result = "Four of a Kind"
+            Case HandRanking.HandRank.StraightFlush
+                result = "Straight Flush"
+            Case HandRanking.HandRank.RoyalFlush
+                result = "Royal Flush"
+        End Select
+
+        Return result
+    End Function
 End Class

@@ -33,9 +33,9 @@ Public Class _Default
         Dim HandEvaluation As HandRanking = New HandRanking()
 
         ' Get the hand ranks and display results
-        Dim Hand1Rank As HandRanking.HandRank = HandEvaluation.CalculateHandRank(playerhand1)
+        Dim Hand1Rank As HandRank = HandEvaluation.CalculateHandRank(playerhand1)
         Hand1Result.Text = GetHandResult(Hand1Rank)
-        Dim Hand2Rank As HandRanking.HandRank = HandEvaluation.CalculateHandRank(playerhand2)
+        Dim Hand2Rank As HandRank = HandEvaluation.CalculateHandRank(playerhand2)
         Hand2Result.Text = GetHandResult(Hand2Rank)
 
         ' Compare the hands
@@ -45,15 +45,15 @@ Public Class _Default
             CompareResult = -1
         ElseIf Hand1Rank = Hand2Rank Then
             Select Case Hand1Rank
-                Case HandRanking.HandRank.FullHouse
+                Case HandRank.FullHouse
                     CompareResult = HandEvaluation.CompareThreeofaKind(playerhand1, playerhand2)
-                Case HandRanking.HandRank.FourOfAKind
+                Case HandRank.FourOfAKind
                     CompareResult = HandEvaluation.CompareFourofaKind(playerhand1, playerhand2)
-                Case HandRanking.HandRank.ThreeOfAKind
+                Case HandRank.ThreeOfAKind
                     CompareResult = HandEvaluation.CompareThreeofaKind(playerhand1, playerhand2)
-                Case HandRanking.HandRank.TwoPair
+                Case HandRank.TwoPair
                     CompareResult = HandEvaluation.CompareTwoPair(playerhand1, playerhand2)
-                Case HandRanking.HandRank.OnePair
+                Case HandRank.OnePair
                     CompareResult = HandEvaluation.CompareOnePair(playerhand1, playerhand2)
                 Case Else
                     CompareResult = HandEvaluation.CompareHighCard(playerhand1, playerhand2) ' Default for flushes, straights, high card
@@ -71,29 +71,29 @@ Public Class _Default
     End Sub
 
     ''  Get the string representation of a hand rank
-    Private Function GetHandResult(handrank As HandRanking.HandRank)
+    Private Function GetHandResult(handrank As HandRank)
         Dim result As String = String.Empty
 
         Select Case handrank
-            Case HandRanking.HandRank.HighCard
+            Case HandRank.HighCard
                 result = "High Card"
-            Case HandRanking.HandRank.OnePair
+            Case HandRank.OnePair
                 result = "One Pair"
-            Case HandRanking.HandRank.TwoPair
+            Case HandRank.TwoPair
                 result = "Two Pair"
-            Case HandRanking.HandRank.ThreeOfAKind
+            Case HandRank.ThreeOfAKind
                 result = "Three of a Kind"
-            Case HandRanking.HandRank.Straight
+            Case HandRank.Straight
                 result = "Straight"
-            Case HandRanking.HandRank.Flush
+            Case HandRank.Flush
                 result = "Flush"
-            Case HandRanking.HandRank.FullHouse
+            Case HandRank.FullHouse
                 result = "Full House"
-            Case HandRanking.HandRank.FourOfAKind
+            Case HandRank.FourOfAKind
                 result = "Four of a Kind"
-            Case HandRanking.HandRank.StraightFlush
+            Case HandRank.StraightFlush
                 result = "Straight Flush"
-            Case HandRanking.HandRank.RoyalFlush
+            Case HandRank.RoyalFlush
                 result = "Royal Flush"
         End Select
 

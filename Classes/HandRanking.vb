@@ -1,23 +1,25 @@
 ﻿Imports System
 Imports System.Collections.Generic
+Imports System.IO.Ports
 Imports System.Linq
 
 Namespace Poker.Classes
 
+    Public Enum HandRank
+        HighCard = 1
+        OnePair = 2
+        TwoPair = 3
+        ThreeOfAKind = 4
+        Straight = 5
+        Flush = 6
+        FullHouse = 7
+        FourOfAKind = 8
+        StraightFlush = 9
+        RoyalFlush = 10
+    End Enum
+
     ''  Class to evaluate and compare poker hands
-    Class HandRanking
-        Public Enum HandRank
-            HighCard = 1
-            OnePair = 2
-            TwoPair = 3
-            ThreeOfAKind = 4
-            Straight = 5
-            Flush = 6
-            FullHouse = 7
-            FourOfAKind = 8
-            StraightFlush = 9
-            RoyalFlush = 10
-        End Enum
+    Public Class HandRanking
 
         ''  Calculate the rank of a given poker hand
         Public Function CalculateHandRank(hand As List(Of Card)) As HandRank
@@ -38,30 +40,23 @@ Namespace Poker.Classes
         ''  Compare two Four of a Kind hands
         Public Function CompareFourofaKind(playerhand1 As List(Of Card), playerhand2 As List(Of Card)) As Integer
 
-            ' Get the ranks of the pairs for hand1
+            ' Get the ranks of the four of a kind for hand1
             Dim hand1PairRanks = playerhand1.GroupBy(Function(c) c.Value) _
                                       .Where(Function(g) g.Count() = 4) _
                                       .OrderByDescending(Function(g) g.Key) _
                                       .Select(Function(g) g.Key).ToList()
 
-            ' Get the ranks of the pairs for hand2
+            ' Get the ranks of the the four of a kind for hand2
             Dim hand2PairRanks = playerhand2.GroupBy(Function(c) c.Value) _
                                       .Where(Function(g) g.Count() = 4) _
                                       .OrderByDescending(Function(g) g.Key) _
                                       .Select(Function(g) g.Key).ToList()
 
-            ' Compare higher pair
+            ' Compare higher four of a kind
             If hand1PairRanks(0) > hand2PairRanks(0) Then Return 1 ' Hand1 wins
             If hand1PairRanks(0) < hand2PairRanks(0) Then Return -1 ' Hand2 wins
 
-            ' Both pairs are equal, compare kicker
-            Dim hand1Kicker = playerhand1.Except(playerhand1.Where(Function(c) c.Value = hand1PairRanks(0))) _
-                                      .OrderByDescending(Function(c) c.Value).ToList()
-            Dim hand2Kicker = playerhand2.Except(playerhand2.Where(Function(c) c.Value = hand2PairRanks(0))) _
-                                      .OrderByDescending(Function(c) c.Value).ToList()
-
-            'compare the kicker cards for high card
-            Return CompareHighCard(hand1Kicker, hand2Kicker) ' Hands are equal
+            Return 0 ' Hands are equal
 
         End Function
 
@@ -69,30 +64,24 @@ Namespace Poker.Classes
         Public Function CompareThreeofaKind(playerhand1 As List(Of Card), playerhand2 As List(Of Card)) As Integer
             ' Assuming both hands are confirmed as Two Pair
 
-            ' Get the ranks of the pairs for hand1
+            ' Get the ranks of the three of a kind for hand1
             Dim hand1PairRanks = playerhand1.GroupBy(Function(c) c.Value) _
                                       .Where(Function(g) g.Count() = 3) _
                                       .OrderByDescending(Function(g) g.Key) _
                                       .Select(Function(g) g.Key).ToList()
 
-            ' Get the ranks of the pairs for hand2
+            ' Get the ranks of the three of a kind for hand2
             Dim hand2PairRanks = playerhand2.GroupBy(Function(c) c.Value) _
                                       .Where(Function(g) g.Count() = 3) _
                                       .OrderByDescending(Function(g) g.Key) _
                                       .Select(Function(g) g.Key).ToList()
 
-            ' Compare higher pair
+            ' Compare the higher three of a kind
             If hand1PairRanks(0) > hand2PairRanks(0) Then Return 1 ' Hand1 wins
             If hand1PairRanks(0) < hand2PairRanks(0) Then Return -1 ' Hand2 wins
 
-            ' Both pairs are equal, compare kicker
-            Dim hand1Kicker = playerhand1.Except(playerhand1.Where(Function(c) c.Value = hand1PairRanks(0))) _
-                                      .OrderByDescending(Function(c) c.Value).ToList()
-            Dim hand2Kicker = playerhand2.Except(playerhand2.Where(Function(c) c.Value = hand2PairRanks(0))) _
-                                      .OrderByDescending(Function(c) c.Value).ToList()
+            Return 0 ' Hands are equal
 
-            ''compare the kicker cards (or pair in a full house) for high card
-            Return CompareHighCard(hand1Kicker, hand2Kicker) ' Hands are equal
         End Function
 
         ''  Compare two Two Pair hands
@@ -115,17 +104,17 @@ Namespace Poker.Classes
             If hand1PairRanks(0) > hand2PairRanks(0) Then Return 1 ' Hand1 wins
             If hand1PairRanks(0) < hand2PairRanks(0) Then Return -1 ' Hand2 wins
 
-            ' Higher pairs are equal, compare lower pair
+            ' First pairs are equal, compare lower pair
             If hand1PairRanks(1) > hand2PairRanks(1) Then Return 1
             If hand1PairRanks(1) < hand2PairRanks(1) Then Return -1
 
-            ' Both pairs are equal, compare kicker
+            ' Both pairs are equal, compare remaining cards
             Dim hand1Kicker = playerhand1.Except(playerhand1.Where(Function(c) c.Value = hand1PairRanks(0) OrElse c.Value = hand1PairRanks(1))) _
                                       .OrderByDescending(Function(c) c.Value).ToList()
             Dim hand2Kicker = playerhand2.Except(playerhand2.Where(Function(c) c.Value = hand2PairRanks(0) OrElse c.Value = hand2PairRanks(1))) _
                                       .OrderByDescending(Function(c) c.Value).ToList()
 
-            ''compare the kicker cards for high card
+            ''compare the remaining cards for high card
             Return CompareHighCard(hand1Kicker, hand2Kicker) ' Hands are equal
         End Function
 
@@ -133,13 +122,13 @@ Namespace Poker.Classes
         Public Function CompareOnePair(playerhand1 As List(Of Card), playerhand2 As List(Of Card)) As Integer
             ' Assuming both hands are confirmed as Two Pair
 
-            ' Get the ranks of the pairs for hand1
+            ' Get the ranks of the pair for hand1
             Dim hand1PairRanks = playerhand1.GroupBy(Function(c) c.Value) _
                                       .Where(Function(g) g.Count() = 2) _
                                       .OrderByDescending(Function(g) g.Key) _
                                       .Select(Function(g) g.Key).ToList()
 
-            ' Get the ranks of the pairs for hand2
+            ' Get the ranks of the pair for hand2
             Dim hand2PairRanks = playerhand2.GroupBy(Function(c) c.Value) _
                                       .Where(Function(g) g.Count() = 2) _
                                       .OrderByDescending(Function(g) g.Key) _
@@ -149,13 +138,13 @@ Namespace Poker.Classes
             If hand1PairRanks(0) > hand2PairRanks(0) Then Return 1 ' Hand1 wins
             If hand1PairRanks(0) < hand2PairRanks(0) Then Return -1 ' Hand2 wins
 
-            ' Both pairs are equal, compare kicker
+            ' Both pairs are equal, compare remaining cards
             Dim hand1Kicker = playerhand1.Except(playerhand1.Where(Function(c) c.Value = hand1PairRanks(0))) _
                                       .OrderByDescending(Function(c) c.Value).ToList()
             Dim hand2Kicker = playerhand2.Except(playerhand2.Where(Function(c) c.Value = hand2PairRanks(0))) _
                                       .OrderByDescending(Function(c) c.Value).ToList()
 
-            ''compare the kicker cards for high card
+            ''compare the remaining cards for high card
             Return CompareHighCard(hand1Kicker, hand2Kicker) ' Hands are equal
         End Function
 
